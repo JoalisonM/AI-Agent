@@ -1,0 +1,25 @@
+{
+  "name": "MCP Server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "AGPL-version-3.0",
+  "private": false,
+  "scripts": {
+    "build": "tsup src/index.ts src/secretaria.js --format esm --clean",
+    "dev": "tsup src/index.ts --format esm --watch --onSuccess 'node dist/index.js'",
+    "start": "node dist/secretaria.js"
+  },
+  "dependencies": {
+    "@google/genai": "^1.50.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "dotenv": "^17.4.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  }
+}
