@@ -1,30 +1,71 @@
 import fs from "node:fs";
 import { Annotation, StateGraph, START, END } from "@langchain/langgraph";
+import { BaseMessage, AIMessage, HumanMessage } from "@langchain/core/messages";
 
 const State = Annotation.Root({
   input: Annotation<string>,
-  outMatheus: Annotation<string>,
-  outJuliana: Annotation<string>,
+  executedNodes: Annotation<number>({
+    reducer: (currentExecuted, newExecuted) => currentExecuted + 1,
+    default: () => 0,
+  }),
+  output: Annotation<BaseMessage[]>({
+    reducer: (currentOutput, nextOutput) => currentOutput.concat(nextOutput),
+    default: () => [],
+  }),
 });
 
-const mockAction = (state: typeof State) => {
+const supervisor = (state: typeof State.State) => {
+  console.log("Supervisor escolhendo o próximo");
   return {
-    outMatheus: "Matheus disse 'oi!'",
+    executedNodes: 1,
+    output: [new AIMessage("Olá da IA")],
   };
 };
 
-const mockAction2 = (state: typeof State) => {
+const financialSpecialist = (state: typeof State.State) => {
+  console.log("Financial specialist chamado");
   return {
-    outJuliana: "Juliana disse 'oi!'",
+    executedNodes: 1,
+    output: [new HumanMessage("Olá do humano")],
+  };
+};
+
+const schedulingSpecialist = (state: typeof State.State) => {
+  console.log("Scheduling specialist chamado");
+  return {
+    executedNodes: 1,
+    output: [new AIMessage("Olá da IA")],
+  };
+};
+
+const commsSpecialist = (state: typeof State.State) => {
+  console.log("Comms specialist chamado");
+  return {
+    executedNodes: 1,
+    output: [new AIMessage("Olá da IA")],
   };
 };
 
 const graph = new StateGraph(State)
-  .addNode("matheus", mockAction)
-  .addNode("juliana", mockAction2)
-  .addEdge(START, "matheus")
-  .addEdge("matheus", "juliana")
-  .addEdge("juliana", END)
+  .addNode("supervisor", supervisor)
+  .addNode("financial_specialist", financialSpecialist)
+  .addNode("scheduling_specialist", schedulingSpecialist)
+  .addNode("comms_specialist", commsSpecialist)
+  .addEdge(START, "supervisor")
+  .addConditionalEdges("supervisor", (state: typeof State.State) => {
+    if (state.executedNodes == 0) {
+      return "financial_specialist";
+    } else if (state.executedNodes == 1) {
+      return "scheduling_specialist";
+    } else if (state.executedNodes == 2) {
+      return "comms_specialist";
+    } else {
+      return "END";
+    }
+  })
+  .addEdge("financial_specialist", "supervisor")
+  .addEdge("scheduling_specialist", "supervisor")
+  .addEdge("comms_specialist", "supervisor")
   .compile();
 
 const result = await graph.invoke({ input: "olá!" });
