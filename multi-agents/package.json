@@ -11,7 +11,7 @@
     "npm": ">= 6.0.0"
   },
   "scripts": {
-    "dev": "tsup src/index.ts --format esm --watch --onSuccess 'node dist/index.js'",
+    "dev": "tsup src/index.ts --format esm --watch --shims --external dotenv --onSuccess 'node dist/index.js'",
     "test": ""
   },
   "devDependencies": {
@@ -21,6 +21,10 @@
   },
   "dependencies": {
     "@langchain/core": "^1.1.42",
-    "@langchain/langgraph": "^1.2.9"
+    "@langchain/google-genai": "^2.1.29",
+    "@langchain/langgraph": "^1.2.9",
+    "dotenv": "^17.4.2",
+    "langchain": "^1.3.5",
+    "zod": "^4.4.1"
   }
 }
